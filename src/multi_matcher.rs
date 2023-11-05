@@ -8,24 +8,23 @@ impl Source{
             text:s.chars().collect(),
          }
     }
-    pub fn matchFrom(&self, p:&str, from:usize ) ->Option<usize>{
+    pub fn match_from(&self, p:&str, from:usize ) ->Option<usize>{
 
         for i in from..self.text.len() - (p.len()-1){
-          if self.fun_name(p,i){
+          if self.match_at_index(p,i){
             return Some(i);
           }
         }
         None
-
     }
 
-    fn fun_name(&self, p: &str, from:usize) -> bool {
+    fn match_at_index(&self, p: &str, from:usize) -> bool {
         let mut counter=0;
-        println!("P: {} ",p);
         for pi in p.chars(){
-            let c = self.text.get(from+counter).unwrap();
-            println!("Comparing: {} to pattern char {} ", c, &pi);
-              if c != &pi{
+            let c = self.text.get(from+counter);
+            if c.is_none()  {return false};
+            let c2=c.unwrap();
+              if c2 != &pi{
                 return  false;
               }
               counter+=1;
@@ -36,26 +35,8 @@ impl Source{
 }
 
 pub struct PatternMatch {
-     index: Option<u32>,
+     index: Option<usize>,
      pattern :String
-}
-
-impl PatternMatch {
-    pub fn new (s:String) -> Self{
-        Self { 
-            pattern: s,
-            index: None
-         }
-    }
-}
-
-fn create_patterns(ps: Vec<String>) -> Vec<PatternMatch>{
-
-    let mut result= vec![];
-    for pattern in ps.iter(){
-        result.push(PatternMatch { index: None, pattern: pattern.to_owned() })
-    }
-    return result;
 }
 pub struct SourceMatch{
     source: Source,
@@ -66,13 +47,22 @@ impl SourceMatch {
     pub fn new (source:Source, ps: Vec<String>) -> Self{
         Self { 
             source,
-            patterns: create_patterns(ps)    
+            patterns: Self::create_patterns(ps)    
          }
     }
-    pub fn match_fixed_parts(&self) {
-   
-     
-       
+
+    fn create_patterns(ps: Vec<String>) -> Vec<PatternMatch>{
+        let mut result= vec![];
+        for pattern in ps.iter(){
+            result.push(PatternMatch { index: None, pattern: pattern.to_owned() })
+        }
+        return result;
+    }
+    pub fn match_fixed_parts(mut self) {
+         for a in 0..self.patterns.len() {
+            let result=self.source.match_from(&self.patterns[a].pattern, 0);
+            self.patterns[a].index = Some(result.unwrap());
+         }
     }
 }
 
@@ -88,7 +78,3 @@ impl Iterator for SourceMatch{
     }
  
 }
-
-
-
-
