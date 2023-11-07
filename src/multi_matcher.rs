@@ -8,17 +8,17 @@ impl Source{
             text:s.chars().collect(),
          }
     }
-    pub fn match_from(&self, p:&str, from:usize ) ->Option<usize>{
+    pub fn matches_from(&self, p:&str, from:usize ) ->Option<usize>{
 
         for i in from..self.text.len() - (p.len()-1){
-          if self.match_at_index(p,i){
+          if self.matches_at_index(p,i){
             return Some(i);
           }
         }
         None
     }
 
-    fn match_at_index(&self, p: &str, from:usize) -> bool {
+    fn matches_at_index(&self, p: &str, from:usize) -> bool {
         let mut counter=0;
         for pi in p.chars(){
             let c = self.text.get(from+counter);
@@ -60,8 +60,10 @@ impl SourceMatch {
     }
     pub fn match_fixed_parts(mut self) {
          for a in 0..self.patterns.len() {
-            let result=self.source.match_from(&self.patterns[a].pattern, 0);
-            self.patterns[a].index = Some(result.unwrap());
+            
+            
+            let result=self.source.matches_from(&self.patterns[a].pattern, 0);
+            self.patterns[a].index = result; 
          }
     }
 }
