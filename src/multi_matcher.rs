@@ -1,82 +1,59 @@
-pub struct Source {
-    text: Vec<char>
+
+
+struct PatternIndex<'a> {
+    pattern:&'a str,
+    index: usize ,
 }
 
-impl Source{
-    pub fn new (s:String) -> Self{
-        Self { 
-            text:s.chars().collect(),
-         }
-    }
-    pub fn matches_from(&self, p:&str, from:usize ) ->Option<usize>{
+pub fn multimatch<'a>(source:&'a str, mut pattern_index: Vec<PatternIndex> )  {
+    if(pattern_index.len() >=1 && pattern_index.get(0).unwrap() ) {
+       
+    if indexes.is_none() {
+        indexes= create_endindexes(source, &patterns);
+    }   
+    if indexes.is_none() {return; } 
+   
 
-        for i in from..self.text.len() - (p.len()-1){
-          if self.matches_at_index(p,i){
-            return Some(i);
-          }
-        }
-        None
-    }
-
-    fn matches_at_index(&self, p: &str, from:usize) -> bool {
-        let mut counter=0;
-        for pi in p.chars(){
-            let c = self.text.get(from+counter);
-            if c.is_none()  {return false};
-            let c2=c.unwrap();
-              if c2 != &pi{
-                return  false;
-              }
-              counter+=1;
-          }
-          println!("matches from: {}  pattern: {} ", from, p);
-          true
+    for i in indexes.unwrap().iter().rev() {
+        let slice = &source[*i..];
+        println!("{}", slice);
     }
 }
-
-pub struct PatternMatch {
-     index: Option<usize>,
-     pattern :String
-}
-pub struct SourceMatch{
-    source: Source,
-    patterns: Vec<PatternMatch>,
 }
 
-impl SourceMatch {
-    pub fn new (source:Source, ps: Vec<String>) -> Self{
-        Self { 
-            source,
-            patterns: Self::create_patterns(ps)    
-         }
-    }
 
-    fn create_patterns(ps: Vec<String>) -> Vec<PatternMatch>{
-        let mut result= vec![];
-        for pattern in ps.iter(){
-            result.push(PatternMatch { index: None, pattern: pattern.to_owned() })
-        }
-        return result;
-    }
-    pub fn match_fixed_parts(mut self) {
-         for a in 0..self.patterns.len() {
-            
-            
-            let result=self.source.matches_from(&self.patterns[a].pattern, 0);
-            self.patterns[a].index = result; 
-         }
-    }
-}
 
-impl Iterator for SourceMatch{
-    type Item = Vec<String>;   //non-fixed parts
 
-    
-    fn next(&mut self) -> Option<<Self as Iterator>::Item> { 
-        
-        return Some(vec!["".to_owned()]);
-        
-       //self.source.text.get(0);
+pub fn multimatch_init<'a>(source:&'a str, patterns: Vec<&str> ) -> Option<Vec<&'a str>> {
+    let end_indexes_wrapped= create_endindexes(source, &patterns);
+    if end_indexes_wrapped.is_none() {return None;}
+    let end_indexes= end_indexes_wrapped.unwrap();
+     
+    println!("{:?}",end_indexes);
+    let mut res:Vec<&str> = vec![];
+    let mut ei:usize=0;
+    let mut begin:usize=0;
+    for  p in patterns {
+        let eis=end_indexes.get(ei).unwrap();
+        res.push(&source[begin..eis-p.len()]);
+        begin =*eis;
+        ei+=1;
     }
- 
-}
+    res.push(&source[*end_indexes.last().unwrap()..]);
+    return Some(res);
+}  
+
+pub fn create_endindexes (source: &str, patterns: &Vec<&str> ) -> Option<Vec<usize>> {
+    let mut end_indexes: Vec<usize> = vec![];
+    let mut from: usize = 0;
+    for p in patterns {
+    let inner= &source[from.. ];
+    let found= inner.find(p);
+    if found.is_none() {return None}
+    from+= found.unwrap();
+    from+=p.len();
+    end_indexes.push(from);
+    }
+    Some(end_indexes)
+
+} 

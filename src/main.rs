@@ -1,42 +1,38 @@
-mod multi_matcher;
-mod multi_matcher2;
+
+//mod multi_matcher;
+
+pub mod gstring;
+use gstring::GString;
+pub mod text;
+use text::Text;
 
 
-use multi_matcher::SourceMatch;
-
-use crate::multi_matcher::Source;
 
 
 
-
-// fn main() {
-
-   
  
-//     //let v=vec!["a".to_owned(), "bb".to_owned(), "ca".to_owned()];
-//     let mm = Source::new("Hello, world aa bb cc dd a bb cc".to_owned());
-//     let patterns=vec!["a".to_owned(), "b".to_owned(), "c".to_owned()];
-//     let sm:SourceMatch = SourceMatch::new(mm, patterns);
-//     sm.match_fixed_parts();
-
-    
-
-
-
-// }
 fn main() {
 
 
-    let s = String::from("Hello, world !!!xxxxxxxxxxxxxxxxxxxx");
-    let arr = ["el", "o", "!"];
 
-    let mm=multi_matcher2::multimatch(&s,arr.to_vec());
+    let mut l=GString::new("Hello, world !!!xxxxxxxxxxxxxxxxxxxx".to_owned());
+    let p=GString::new(" ss".to_owned());
+    l.append_gstring(p);
 
-    if let Some(part) = mm {
 
-        println!("{:?}", part);
+    let text = Text::new(&l);
+
+    for a in text.tokens {
+        println!("{:?}",a.to_string());
+
     }
+
 
     
 
+   
+
+
 }
+
+
